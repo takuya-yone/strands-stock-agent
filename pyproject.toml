@@ -1,0 +1,27 @@
+[project]
+name = "strands-stock-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Takuya Yonezawa", email = "yonezawa.takuya.yq2@gmail.com" }
+]
+requires-python = ">=3.13.1"
+dependencies = [
+    "aws-lambda-powertools>=3.35.0",
+    "strands-agents>=1.58.1",
+    "strands-agents-tools>=0.8.9",
+    "yfinance>=1.7.0",
+]
+
+[project.scripts]
+strands-stock-agent = "strands_stock_agent:main"
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.10",
+]
