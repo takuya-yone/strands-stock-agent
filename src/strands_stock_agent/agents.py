@@ -4,6 +4,7 @@ from strands_tools import file_write
 from strands_stock_agent.agent_tools import (
     get_market_status,
     get_market_summary,
+    get_stock_financial_statement,
     get_stock_info,
 )
 
@@ -11,7 +12,7 @@ NOVA_2_LITE_GLOBAL = "global.amazon.nova-2-lite-v1:0"
 
 NOVA_PRO_APAC = "apac.amazon.nova-pro-v1:0"
 
-search_agent_tools = [get_stock_info, get_market_status, get_market_summary]
+search_agent_tools = [get_stock_info, get_market_status, get_market_summary,get_stock_financial_statement]
 
 search_system_prompt = """
 You are an expert stock market information agent. 
