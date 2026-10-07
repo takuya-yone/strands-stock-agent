@@ -1,5 +1,30 @@
 from enum import Enum
 
+from strands.models import BedrockModel
+
+
+class StrandsLlmModelEnum(Enum):
+    SONNET_5_GLOBAL = BedrockModel(
+        model_id="global.anthropic.claude-sonnet-5",
+        region_name="ap-northeast-1",
+    )
+    KIMI_K3_GLOBAL = BedrockModel(
+        model_id="global.moonshotai.kimi-k3",
+        region_name="ap-northeast-1",
+    )
+    GROK_47_GLOBAL = BedrockModel(
+        model_id="global.xai.grok-4.7",
+        region_name="ap-northeast-1",
+    )
+    NOVA_2_LITE_GLOBAL = BedrockModel(
+        model_id="global.amazon.nova-2-lite-v1:0",
+        region_name="ap-northeast-1",
+    )
+    NOVA_PRO_APAC = BedrockModel(
+        model_id="apac.amazon.nova-pro-v1:0",
+        region_name="ap-northeast-1",
+    )
+
 
 class MarketIndexEnum(Enum):
     US = "US"

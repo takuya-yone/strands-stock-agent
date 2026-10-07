@@ -7,12 +7,10 @@ from strands_stock_agent.agent_tools import (
     get_stock_financial_statement,
     get_stock_info,
 )
-
-NOVA_2_LITE_GLOBAL = "global.amazon.nova-2-lite-v1:0"
-
-NOVA_PRO_APAC = "apac.amazon.nova-pro-v1:0"
+from strands_stock_agent.schemas import StrandsLlmModelEnum
 
 search_agent_tools = [get_stock_info, get_market_status, get_market_summary,get_stock_financial_statement]
+
 
 search_system_prompt = """
 You are an expert stock market information agent. 
@@ -24,7 +22,7 @@ Answer in Japanese.
 After responding, please use file_write to create a concise report in Markdown format.
 """
 
-search_agent = Agent(name="strands-stock-search-agent", model=NOVA_PRO_APAC,system_prompt=search_system_prompt, tools=search_agent_tools,callback_handler=None)
+search_agent = Agent(name="strands-stock-search-agent", model=StrandsLlmModelEnum.KIMI_K3_GLOBAL.value, system_prompt=search_system_prompt, tools=search_agent_tools,callback_handler=None)
 
 
 
@@ -39,4 +37,4 @@ Create report in Japanese.
 
 report_agent_tools = [file_write]
 
-report_agent = Agent(name="strands-stock-report-agent", model=NOVA_2_LITE_GLOBAL,system_prompt=report_system_prompt, tools=report_agent_tools,callback_handler=None)
+report_agent = Agent(name="strands-stock-report-agent", model=StrandsLlmModelEnum.NOVA_2_LITE_GLOBAL.value, system_prompt=report_system_prompt, tools=report_agent_tools,callback_handler=None)
