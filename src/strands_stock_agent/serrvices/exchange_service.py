@@ -22,36 +22,55 @@ def exec_order(req: OrderRequest) -> OrderResponse:
     Returns:
         OrderResponse: The response containing the transaction ID and timestamp.
     """
-    logger.info(f"Executing order for user: {req.user_id}, sell: {req.sell}, buy: {req.buy}, quantity: {req.quantity}")
+    logger.info(f"Executing order for user: {req.user_id}, sell: {req.sell}, buy: {req.buy}, buy_quantity: {req.buy_quantity}")
     transaction_id = generate()
     timestamp = get_timestamp()
 
     new_balance = UserBalanceModel.get(req.user_id)
 
+    # buy_quantity is in the buy currency; convert it to the sell currency via JPY
+    sell_quantity = convert_quantity(req.buy_quantity, req.buy, req.sell)
+    logger.info(f"Sell quantity: {sell_quantity} {req.sell.value}")
 
-
-    if req.sell == CurrencyEnum.JPY:
-        new_balance.JPY -= req.quantity
-    elif req.sell == CurrencyEnum.USD:
-        new_balance.USD -= req.quantity
-    elif req.sell == CurrencyEnum.EUR:
-        new_balance.EUR -= req.quantity
-    elif req.sell == CurrencyEnum.GBP:
-        new_balance.GBP -= req.quantity
-
-    if req.buy == CurrencyEnum.JPY:
-        new_balance.JPY += req.quantity
-    elif req.buy == CurrencyEnum.USD:
-        new_balance.USD += req.quantity
-    elif req.buy == CurrencyEnum.EUR:
-        new_balance.EUR += req.quantity
-    elif req.buy == CurrencyEnum.GBP:
-        new_balance.GBP += req.quantity
+    setattr(new_balance, req.sell.value, getattr(new_balance, req.sell.value) - sell_quantity)
+    setattr(new_balance, req.buy.value, getattr(new_balance, req.buy.value) + req.buy_quantity)
 
     save_balance(req.user_id, new_balance)
 
     res = OrderResponse(transaction_id=transaction_id, timestamp=timestamp)
     return res
+
+
+def get_jpy_rate(currency: CurrencyEnum) -> float:
+    """
+    Get the JPY value of one unit of the given currency.
+
+    Args:
+        currency (CurrencyEnum): The currency to look up.
+
+    Returns:
+        float: JPY per one unit of the currency (1.0 for JPY).
+    """
+    if currency == CurrencyEnum.JPY:
+        return 1.0
+    return get_last_price(ExchangeIndexEnum[f"{currency.value}JPY"])
+
+
+def convert_quantity(quantity: float, from_currency: CurrencyEnum, to_currency: CurrencyEnum) -> float:
+    """
+    Convert an amount from one currency to another via JPY.
+
+    Args:
+        quantity (float): The amount in from_currency.
+        from_currency (CurrencyEnum): The currency of the amount.
+        to_currency (CurrencyEnum): The currency to convert to.
+
+    Returns:
+        float: The equivalent amount in to_currency.
+    """
+    if from_currency == to_currency:
+        return quantity
+    return quantity * get_jpy_rate(from_currency) / get_jpy_rate(to_currency)
 
 
 def save_balance(user_id: str, new_balance: UserBalanceModel):
