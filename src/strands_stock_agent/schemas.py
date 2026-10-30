@@ -68,7 +68,7 @@ class OrderRequest(BaseModel):
     user_id: str
     sell: CurrencyEnum
     buy: CurrencyEnum
-    quantity: int
+    buy_quantity: int
 
 class OrderResponse(BaseModel):
     transaction_id: str
