@@ -20,13 +20,13 @@ A [Strands Agents](https://strandsagents.com) app with three module-level `Agent
 - `exchange_exec_agent` — FX rates, balance lookup, and placing orders. Its system prompt hardcodes `UserId is 'test_user'`.
 - `report_agent` — takes text and writes a Markdown report to `reports/` using `strands_tools.file_write`.
 
-Layering for the exchange flow: `agents/` → `tools/` (`@tool`-decorated functions; the docstring `Args:` sections are the schema the LLM sees) → `serrvices/` (business logic) → `db/` (PynamoDB models). `schemas.py` holds all enums and pydantic models, including `StrandsLlmModelEnum`, which wraps pre-built `BedrockModel` instances; agents select models through it.
+Layering for the exchange flow: `agents/` → `tools/` (`@tool`-decorated functions; the docstring `Args:` sections are the schema the LLM sees) → `services/` (business logic) → `db/` (PynamoDB models). `schemas.py` holds all enums and pydantic models, including `StrandsLlmModelEnum`, which wraps pre-built `BedrockModel` instances; agents select models through it.
 
 `tools/__init__.py` uses `import *` from each tools module, so a new tool is exposed to agents once it is defined there. It must also be added to the agent's tools list.
 
 ## Gotchas
 
-- The directory is spelled `serrvices` (typo). Imports must use that spelling.
-- `exec_order` in `serrvices/exchange_service.py` adds and subtracts the same `quantity` of both currencies, with no rate conversion and no balance check. It also never writes to `OrderRecordModel`.
+- The directory is spelled `services` (typo). Imports must use that spelling.
+- `exec_order` in `services/exchange_service.py` adds and subtracts the same `quantity` of both currencies, with no rate conversion and no balance check. It also never writes to `OrderRecordModel`.
 - `get_last_price` and `calc_jpy_value` call yfinance on every order.
 - Logging uses AWS Lambda Powertools `Logger` (`logger.py`). Agent prompts and responses are in Japanese.

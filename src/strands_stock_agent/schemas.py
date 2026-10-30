@@ -66,6 +66,7 @@ class FxBalance(BaseModel):
 
 class OrderRequest(BaseModel):
     user_id: str
+    transaction_id: str
     sell: CurrencyEnum
     buy: CurrencyEnum
     buy_quantity: int
@@ -73,7 +74,6 @@ class OrderRequest(BaseModel):
 
 class OrderResponse(BaseModel):
     transaction_id: str
-    timestamp: str
 
 
 class FxBalanceRequest(BaseModel):

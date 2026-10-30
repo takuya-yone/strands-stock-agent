@@ -1,4 +1,5 @@
 import yfinance as yf
+from nanoid import generate
 from strands import tool
 
 from strands_stock_agent.db.balance_db import UserBalanceModel
@@ -10,7 +11,7 @@ from strands_stock_agent.schemas import (
     OrderRequest,
     OrderResponse,
 )
-from strands_stock_agent.serrvices.exchange_service import exec_order
+from strands_stock_agent.services.exchange_service import exec_order
 
 
 @tool
@@ -49,12 +50,26 @@ def get_fx_balance(user_id: str) -> FxBalance:
 
 
 @tool
-def order(user_id: str, sell: CurrencyEnum, buy: CurrencyEnum, buy_quantity: int) -> OrderResponse:
+def generate_transaction_id() -> str:
+    """
+    Generate a unique transaction ID.
+
+    Returns:
+        str: A unique transaction ID.
+    """
+    transaction_id = generate()
+    logger.info(f"Generated transaction ID: {transaction_id}", extra={"transactionId": transaction_id})
+    return transaction_id
+
+
+@tool
+def order(user_id: str, transaction_id: str, sell: CurrencyEnum, buy: CurrencyEnum, buy_quantity: int) -> OrderResponse:
     """
     Place an order for the given request.
 
     Args:
         user_id (str): The user ID placing the order.
+        transaction_id (str): The transaction ID for the order.
         sell (CurrencyEnum): The currency to sell.
         buy (CurrencyEnum): The currency to buy.
         buy_quantity (int): The quantity to order.
@@ -64,6 +79,8 @@ def order(user_id: str, sell: CurrencyEnum, buy: CurrencyEnum, buy_quantity: int
     """
     # This is a placeholder implementation. Replace with actual logic to place an order.
     logger.info(f"Placing order for user: {user_id}", extra={"userId": user_id})
-    request = OrderRequest(user_id=user_id, sell=sell, buy=buy, buy_quantity=buy_quantity)
+    request = OrderRequest(
+        user_id=user_id, transaction_id=transaction_id, sell=sell, buy=buy, buy_quantity=buy_quantity
+    )
 
     return exec_order(request)

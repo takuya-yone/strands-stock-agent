@@ -43,9 +43,10 @@ class OrderHistoryModel(Model):
     class Meta:
         table_name = "fx-order-history-table"
 
-    userId = UnicodeAttribute(hash_key=True)
-    timestamp = UnicodeAttribute(range_key=True)
-    transactionId = UnicodeAttribute()
+    transactionId = UnicodeAttribute(hash_key=True)
+    userId = UnicodeAttribute()
+    timestamp = UnicodeAttribute()
     ticker = UnicodeAttribute()
     quantity = NumberAttribute()
     price = NumberAttribute()
+    order_summary = UnicodeAttribute(null=True)

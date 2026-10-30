@@ -1,5 +1,4 @@
 import yfinance as yf
-from nanoid import generate
 
 from strands_stock_agent.db.balance_db import OrderHistoryModel, UserBalanceHistoryModel, UserBalanceModel
 from strands_stock_agent.logger import logger
@@ -9,7 +8,7 @@ from strands_stock_agent.schemas import (
     OrderRequest,
     OrderResponse,
 )
-from strands_stock_agent.serrvices.common import get_timestamp
+from strands_stock_agent.services.common import get_timestamp
 
 
 def exec_order(req: OrderRequest) -> OrderResponse:
@@ -17,7 +16,7 @@ def exec_order(req: OrderRequest) -> OrderResponse:
     Execute a currency exchange order.
 
     Args:
-        req (OrderRequest): The order request containing user ID, sell currency, buy currency, and quantity.
+        req (OrderRequest): The order request containing user ID, transaction ID, sell currency, buy currency, and quantity.
 
     Returns:
         OrderResponse: The response containing the transaction ID and timestamp.
@@ -25,11 +24,15 @@ def exec_order(req: OrderRequest) -> OrderResponse:
     logger.info(
         f"Executing order for user: {req.user_id}, sell: {req.sell}, buy: {req.buy}, buy_quantity: {req.buy_quantity}"
     )
-    transaction_id = generate()
 
     new_balance = UserBalanceModel.get(req.user_id)
 
     # buy_quantity is in the buy currency; convert it to the sell currency via JPY
+
+    # if not includes jpy throw error
+    if req.sell != CurrencyEnum.JPY and req.buy != CurrencyEnum.JPY:
+        raise ValueError("Either sell or buy currency must be JPY")
+
     sell_quantity = convert_quantity(req.buy_quantity, req.buy, req.sell)
     logger.info(f"Sell quantity: {sell_quantity} {req.sell.value}")
 
@@ -60,17 +63,17 @@ def exec_order(req: OrderRequest) -> OrderResponse:
     elif req.buy == CurrencyEnum.GBP:
         new_balance.balance.GBP += req.buy_quantity
 
-    save_balance(req.user_id, new_balance, transaction_id)
-    save_user_balance_history(req.user_id, new_balance, transaction_id)
+    save_balance(req.user_id, new_balance, req.transaction_id)
+    save_user_balance_history(req.user_id, new_balance, req.transaction_id)
     save_order_history(
         req.user_id,
-        transaction_id,
+        req.transaction_id,
         f"{req.sell.value}/{req.buy.value}",
         req.buy_quantity,
         get_jpy_rate(req.buy),
     )
 
-    res = OrderResponse(transaction_id=transaction_id)
+    res = OrderResponse(transaction_id=req.transaction_id)
     return res
 
 
@@ -85,15 +88,17 @@ def save_order_history(user_id: str, transaction_id: str, ticker: str, quantity:
         quantity (float): The quantity of the asset.
         price (float): The price of the asset.
     """
+    logger.info(f"Saving order history for user_id={user_id}, transaction_id={transaction_id}")
     _timestamp = get_timestamp()
     history = OrderHistoryModel(
+        transactionId=transaction_id,
         userId=user_id,
         timestamp=_timestamp,
-        transactionId=transaction_id,
         ticker=ticker,
         quantity=quantity,
         price=price,
     )
+    logger.info(f"Order history created: {history}")
     history.save()
 
 
