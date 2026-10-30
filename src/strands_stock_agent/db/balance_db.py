@@ -1,4 +1,5 @@
 from pynamodb.attributes import MapAttribute, NumberAttribute, UnicodeAttribute
+from pynamodb.indexes import AllProjection, GlobalSecondaryIndex
 from pynamodb.models import Model
 
 from strands_stock_agent.schemas import FxBalance
@@ -35,6 +36,20 @@ class UserBalanceHistoryModel(Model):
     totalJpyValue = NumberAttribute()
 
 
+class UserIdIndex(GlobalSecondaryIndex):
+    class Meta:
+        index_name = "user-id-index"
+        projection = AllProjection()
+        # プロビジョニングモードの場合のみ必要
+        # read_capacity_units = 1
+        # write_capacity_units = 1
+
+    # GSIのパーティションキー
+    userId = UnicodeAttribute(hash_key=True)
+    # GSIのソートキー(任意)
+    timestamp = UnicodeAttribute(range_key=True)
+
+
 class OrderHistoryModel(Model):
     """
     A DynamoDB Order History
@@ -50,3 +65,6 @@ class OrderHistoryModel(Model):
     quantity = NumberAttribute()
     price = NumberAttribute()
     order_summary = UnicodeAttribute(null=True)
+
+    # インデックスをクラス属性として登録
+    user_id_index = UserIdIndex()

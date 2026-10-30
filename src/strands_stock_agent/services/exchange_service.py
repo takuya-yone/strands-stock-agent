@@ -98,8 +98,8 @@ def save_order_history(user_id: str, transaction_id: str, ticker: str, quantity:
         quantity=quantity,
         price=price,
     )
-    logger.info(f"Order history created: {history}")
     history.save()
+    logger.info(f"Order history created: {history.transactionId}")
 
 
 def save_user_balance_history(user_id: str, new_balance: UserBalanceModel, transaction_id: str):

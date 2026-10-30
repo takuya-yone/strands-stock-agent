@@ -2,7 +2,7 @@ import yfinance as yf
 from nanoid import generate
 from strands import tool
 
-from strands_stock_agent.db.balance_db import UserBalanceModel
+from strands_stock_agent.db.balance_db import OrderHistoryModel, UserBalanceModel
 from strands_stock_agent.logger import logger
 from strands_stock_agent.schemas import (
     CurrencyEnum,
@@ -84,3 +84,21 @@ def order(user_id: str, transaction_id: str, sell: CurrencyEnum, buy: CurrencyEn
     )
 
     return exec_order(request)
+
+
+@tool
+def get_order_histories(user_id: str) -> list[OrderHistoryModel]:
+    """
+    Get the order histories for the given user ID.
+
+    Args:
+        user_id (str): The user ID for which to fetch order histories.
+
+    Returns:
+        list[OrderHistoryModel]: A list of order history records. Limited to the 10 most recent entries.
+    """
+    histories = list(OrderHistoryModel.user_id_index.query(user_id, scan_index_forward=False, limit=10))
+    logger.info(
+        f"Fetched order histories for user: {user_id}", extra={"userId": user_id, "historiesCount": len(histories)}
+    )
+    return histories
