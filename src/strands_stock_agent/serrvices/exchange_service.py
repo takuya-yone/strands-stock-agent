@@ -22,7 +22,9 @@ def exec_order(req: OrderRequest) -> OrderResponse:
     Returns:
         OrderResponse: The response containing the transaction ID and timestamp.
     """
-    logger.info(f"Executing order for user: {req.user_id}, sell: {req.sell}, buy: {req.buy}, buy_quantity: {req.buy_quantity}")
+    logger.info(
+        f"Executing order for user: {req.user_id}, sell: {req.sell}, buy: {req.buy}, buy_quantity: {req.buy_quantity}"
+    )
     transaction_id = generate()
     timestamp = get_timestamp()
 
@@ -105,8 +107,7 @@ def save_balance(user_id: str, new_balance: UserBalanceModel):
     balance.save()
 
 
-
-def calc_jpy_value(balance:UserBalanceModel):
+def calc_jpy_value(balance: UserBalanceModel):
     """
     Calculate the total value of the user's balance in JPY.
 
@@ -125,8 +126,7 @@ def calc_jpy_value(balance:UserBalanceModel):
     return int(jpy_value)
 
 
-
-def get_last_price(ticker:ExchangeIndexEnum) -> float:
+def get_last_price(ticker: ExchangeIndexEnum) -> float:
     """
     Get the last price for the given exchange ticker.
 

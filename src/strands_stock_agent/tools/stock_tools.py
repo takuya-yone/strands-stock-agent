@@ -6,7 +6,7 @@ from strands_stock_agent.schemas import FinancialStatementEnum
 
 
 @tool
-def get_stock_info(ticker:str) -> dict:
+def get_stock_info(ticker: str) -> dict:
     """
     Get stock information for the given ticker symbol.
 
@@ -24,7 +24,7 @@ def get_stock_info(ticker:str) -> dict:
 
 
 @tool
-def get_stock_financial_statement(ticker:str, statement: FinancialStatementEnum) -> dict:
+def get_stock_financial_statement(ticker: str, statement: FinancialStatementEnum) -> dict:
     """
     Get the specified financial statement for the given ticker symbol.
 
@@ -37,14 +37,16 @@ def get_stock_financial_statement(ticker:str, statement: FinancialStatementEnum)
     Returns:
         dict: A dictionary containing the requested financial statement information.
     """
-    logger.info(f"Fetching {statement.value} for ticker: {ticker}", extra={"ticker": ticker,"statement": statement.value})
+    logger.info(
+        f"Fetching {statement.value} for ticker: {ticker}", extra={"ticker": ticker, "statement": statement.value}
+    )
     stock = yf.Ticker(ticker)
     if statement == FinancialStatementEnum.BALANCE_SHEET:
-        return stock.get_balance_sheet(as_dict=True,pretty=True)
+        return stock.get_balance_sheet(as_dict=True, pretty=True)
     elif statement == FinancialStatementEnum.INCOME_STATEMENT:
-        return stock.get_income_stmt(as_dict=True,pretty=True)
+        return stock.get_income_stmt(as_dict=True, pretty=True)
     elif statement == FinancialStatementEnum.CASH_FLOW:
-        return stock.get_cash_flow(as_dict=True,pretty=True)
+        return stock.get_cash_flow(as_dict=True, pretty=True)
     else:
         logger.error(f"Unsupported financial statement: {statement.value}")
         return {}

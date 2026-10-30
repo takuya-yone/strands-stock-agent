@@ -14,7 +14,7 @@ from strands_stock_agent.serrvices.exchange_service import exec_order
 
 
 @tool
-def get_exchange_info(ticker:ExchangeIndexEnum) -> dict:
+def get_exchange_info(ticker: ExchangeIndexEnum) -> dict:
     """
     Get exchange information for the given ticker symbol.
 
@@ -32,7 +32,7 @@ def get_exchange_info(ticker:ExchangeIndexEnum) -> dict:
 
 
 @tool
-def get_fx_balance(user_id:str) -> FxBalance:
+def get_fx_balance(user_id: str) -> FxBalance:
     """
     Get the current foreign exchange balance.
 
@@ -49,7 +49,7 @@ def get_fx_balance(user_id:str) -> FxBalance:
 
 
 @tool
-def order(user_id: str,sell: CurrencyEnum, buy: CurrencyEnum, buy_quantity: int) -> OrderResponse:
+def order(user_id: str, sell: CurrencyEnum, buy: CurrencyEnum, buy_quantity: int) -> OrderResponse:
     """
     Place an order for the given request.
 
@@ -65,7 +65,5 @@ def order(user_id: str,sell: CurrencyEnum, buy: CurrencyEnum, buy_quantity: int)
     # This is a placeholder implementation. Replace with actual logic to place an order.
     logger.info(f"Placing order for user: {user_id}", extra={"userId": user_id})
     request = OrderRequest(user_id=user_id, sell=sell, buy=buy, buy_quantity=buy_quantity)
-
-
 
     return exec_order(request)

@@ -18,7 +18,10 @@ def get_market_status(market_index: MarketIndexEnum) -> dict:
     Returns:
         dict: A dictionary containing market information.
     """
-    logger.info(f"Fetching general market information for market index: {market_index.value}", extra={"market_index": market_index.value})
+    logger.info(
+        f"Fetching general market information for market index: {market_index.value}",
+        extra={"market_index": market_index.value},
+    )
     market = yf.Market(market_index.value)
 
     return market.status
@@ -37,7 +40,9 @@ def get_market_summary(market_index: MarketIndexEnum) -> dict:
     Returns:
         dict: A dictionary containing market summary information.
     """
-    logger.info(f"Fetching market summary for market index: {market_index.value}", extra={"market_index": market_index.value})
+    logger.info(
+        f"Fetching market summary for market index: {market_index.value}", extra={"market_index": market_index.value}
+    )
     market = yf.Market(market_index.value)
 
     return market.summary

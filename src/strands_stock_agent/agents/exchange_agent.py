@@ -22,12 +22,9 @@ UserId is 'test_user'.
 """
 
 exchange_agent = Agent(
-  name="strands-exchange-search-agent",
-  model=StrandsLlmModelEnum.KIMI_K3_GLOBAL.value,
-  system_prompt=exchange_system_prompt,
-  tools=exchange_agent_tools,
-  # callback_handler=None
+    name="strands-exchange-search-agent",
+    model=StrandsLlmModelEnum.KIMI_K3_GLOBAL.value,
+    system_prompt=exchange_system_prompt,
+    tools=exchange_agent_tools,
+    # callback_handler=None
 )
-
-
-

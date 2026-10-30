@@ -14,9 +14,9 @@ Create report in Japanese.
 report_agent_tools = [file_write]
 
 report_agent = Agent(
-  name="strands-stock-report-agent",
-  model=StrandsLlmModelEnum.NOVA_2_LITE_GLOBAL.value,
-  system_prompt=report_system_prompt,
-  tools=report_agent_tools,
-  callback_handler=None
+    name="strands-stock-report-agent",
+    model=StrandsLlmModelEnum.NOVA_2_LITE_GLOBAL.value,
+    system_prompt=report_system_prompt,
+    tools=report_agent_tools,
+    callback_handler=None,
 )

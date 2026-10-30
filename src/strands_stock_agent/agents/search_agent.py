@@ -8,7 +8,7 @@ from strands_stock_agent.tools import (
     get_stock_info,
 )
 
-search_agent_tools = [get_stock_info, get_market_status, get_market_summary,get_stock_financial_statement]
+search_agent_tools = [get_stock_info, get_market_status, get_market_summary, get_stock_financial_statement]
 
 
 search_system_prompt = """
@@ -22,12 +22,9 @@ After responding, please use file_write to create a concise report in Markdown f
 """
 
 search_agent = Agent(
-  name="strands-stock-search-agent",
-  model=StrandsLlmModelEnum.KIMI_K3_GLOBAL.value,
-  system_prompt=search_system_prompt,
-  tools=search_agent_tools,
-  callback_handler=None
+    name="strands-stock-search-agent",
+    model=StrandsLlmModelEnum.KIMI_K3_GLOBAL.value,
+    system_prompt=search_system_prompt,
+    tools=search_agent_tools,
+    callback_handler=None,
 )
-
-
-
