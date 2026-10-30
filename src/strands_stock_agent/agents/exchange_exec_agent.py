@@ -17,6 +17,7 @@ Always issue a transaction ID when placing an order.
 Answer in Japanese.
 UserId is 'test_user'.
 Execute the order only once.
+Always include JPY in transactions.
 """
 
 exchange_exec_agent = Agent(
@@ -24,5 +25,5 @@ exchange_exec_agent = Agent(
     model=StrandsLlmModelEnum.KIMI_K3_GLOBAL.value,
     system_prompt=exchange_system_prompt,
     tools=exchange_exec_agent_tools,
-    # callback_handler=None,
+    callback_handler=None,
 )
