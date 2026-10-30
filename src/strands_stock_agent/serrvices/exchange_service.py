@@ -32,8 +32,23 @@ def exec_order(req: OrderRequest) -> OrderResponse:
     sell_quantity = convert_quantity(req.buy_quantity, req.buy, req.sell)
     logger.info(f"Sell quantity: {sell_quantity} {req.sell.value}")
 
-    setattr(new_balance, req.sell.value, getattr(new_balance, req.sell.value) - sell_quantity)
-    setattr(new_balance, req.buy.value, getattr(new_balance, req.buy.value) + req.buy_quantity)
+    if req.sell == CurrencyEnum.JPY:
+        new_balance.JPY -= sell_quantity
+    elif req.sell == CurrencyEnum.USD:
+        new_balance.USD -= sell_quantity
+    elif req.sell == CurrencyEnum.EUR:
+        new_balance.EUR -= sell_quantity
+    elif req.sell == CurrencyEnum.GBP:
+        new_balance.GBP -= sell_quantity
+
+    if req.buy == CurrencyEnum.JPY:
+        new_balance.JPY += req.buy_quantity
+    elif req.buy == CurrencyEnum.USD:
+        new_balance.USD += req.buy_quantity
+    elif req.buy == CurrencyEnum.EUR:
+        new_balance.EUR += req.buy_quantity
+    elif req.buy == CurrencyEnum.GBP:
+        new_balance.GBP += req.buy_quantity
 
     save_balance(req.user_id, new_balance)
 
