@@ -17,7 +17,7 @@ Running agents needs AWS credentials with Bedrock access in `ap-northeast-1`. Th
 A [Strands Agents](https://strandsagents.com) app with three module-level `Agent` singletons in `agents/`, re-exported from `agents/__init__.py`. They are instantiated at import time and called like functions (`search_agent("...")`).
 
 - `search_agent` — stock/market info via yfinance tools. Its system prompt tells it to write a Markdown report with `file_write`, but `file_write` is **not** in its tool list.
-- `exchange_agent` — FX rates, balance lookup, and placing orders. Its system prompt hardcodes `UserId is 'test_user'`.
+- `exchange_exec_agent` — FX rates, balance lookup, and placing orders. Its system prompt hardcodes `UserId is 'test_user'`.
 - `report_agent` — takes text and writes a Markdown report to `reports/` using `strands_tools.file_write`.
 
 Layering for the exchange flow: `agents/` → `tools/` (`@tool`-decorated functions; the docstring `Args:` sections are the schema the LLM sees) → `serrvices/` (business logic) → `db/` (PynamoDB models). `schemas.py` holds all enums and pydantic models, including `StrandsLlmModelEnum`, which wraps pre-built `BedrockModel` instances; agents select models through it.

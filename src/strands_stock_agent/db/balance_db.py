@@ -1,4 +1,4 @@
-from pynamodb.attributes import NumberAttribute, UnicodeAttribute
+from pynamodb.attributes import MapAttribute, NumberAttribute, UnicodeAttribute
 from pynamodb.models import Model
 
 from strands_stock_agent.schemas import FxBalance
@@ -13,27 +13,39 @@ class UserBalanceModel(Model):
         table_name = "fx-balance-table"
 
     userId = UnicodeAttribute(hash_key=True)
-    JPY = NumberAttribute()
-    USD = NumberAttribute()
-    EUR = NumberAttribute()
-    GBP = NumberAttribute()
-    TOTAL_JPY_VALUE = NumberAttribute()
+    balance = MapAttribute(JPY=NumberAttribute(), USD=NumberAttribute(), EUR=NumberAttribute(), GBP=NumberAttribute())
+    latestTransactionId = UnicodeAttribute(null=True)
 
     def to_fx_balance(self) -> FxBalance:
-        return FxBalance(JPY=self.JPY, USD=self.USD, EUR=self.EUR, GBP=self.GBP)
+        return FxBalance(JPY=self.balance.JPY, USD=self.balance.USD, EUR=self.balance.EUR, GBP=self.balance.GBP)
 
 
-class OrderRecordModel(Model):
+class UserBalanceHistoryModel(Model):
     """
-    A DynamoDB Order Record
+    A DynamoDB User Balance History
     """
 
     class Meta:
-        table_name = "order-record-table"
+        table_name = "fx-balance-history-table"
 
     userId = UnicodeAttribute(hash_key=True)
     timestamp = UnicodeAttribute(range_key=True)
+    transactionId = UnicodeAttribute()
+    balance = MapAttribute(JPY=NumberAttribute(), USD=NumberAttribute(), EUR=NumberAttribute(), GBP=NumberAttribute())
+    totalJpyValue = NumberAttribute()
+
+
+class OrderHistoryModel(Model):
+    """
+    A DynamoDB Order History
+    """
+
+    class Meta:
+        table_name = "fx-order-history-table"
+
+    userId = UnicodeAttribute(hash_key=True)
+    timestamp = UnicodeAttribute(range_key=True)
+    transactionId = UnicodeAttribute()
     ticker = UnicodeAttribute()
     quantity = NumberAttribute()
     price = NumberAttribute()
-    orderId = UnicodeAttribute()
