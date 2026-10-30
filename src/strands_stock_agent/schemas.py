@@ -1,7 +1,7 @@
 from enum import Enum
 
 from strands.models import BedrockModel
-
+from pydantic import BaseModel
 
 class StrandsLlmModelEnum(Enum):
     SONNET_5_GLOBAL = BedrockModel(
@@ -42,3 +42,37 @@ class FinancialStatementEnum(Enum):
     BALANCE_SHEET = "BALANCE_SHEET"
     INCOME_STATEMENT = "INCOME_STATEMENT"
     CASH_FLOW = "CASH_FLOW"
+
+
+class ExchangeIndexEnum(Enum):
+    USDJPY = "USDJPY=X"
+    EURJPY = "EURJPY=X"
+    GBPJPY = "GBPJPY=X"
+
+
+class CurrencyEnum(Enum):
+    JPY = "JPY"
+    EUR = "EUR"
+    USD = "USD"
+    GBP = "GBP"
+
+
+class FxBalance(BaseModel):
+    JPY: float
+    EUR: float
+    USD: float
+    GBP: float
+
+
+class OrderRequest(BaseModel):
+    user_id: str
+    sell: CurrencyEnum
+    buy: CurrencyEnum
+    quantity: int
+
+class OrderResponse(BaseModel):
+    transaction_id: str
+    timestamp: str
+
+class FxBalanceRequest(BaseModel):
+    user_id: str
