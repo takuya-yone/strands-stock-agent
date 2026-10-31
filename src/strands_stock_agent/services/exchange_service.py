@@ -1,3 +1,5 @@
+import math
+
 import yfinance as yf
 
 from strands_stock_agent.db.balance_db import OrderHistoryModel, UserBalanceHistoryModel, UserBalanceModel
@@ -33,7 +35,8 @@ def exec_order(req: OrderRequest) -> OrderResponse:
     if req.sell != CurrencyEnum.JPY and req.buy != CurrencyEnum.JPY:
         raise ValueError("Either sell or buy currency must be JPY")
 
-    sell_quantity = _convert_quantity(req.buy_quantity, req.buy, req.sell)
+    # balances are integers: round the sell amount up (after trimming float noise) so the user never underpays
+    sell_quantity = math.ceil(round(_convert_quantity(req.buy_quantity, req.buy, req.sell), 6))
     logger.info(f"Sell quantity: {sell_quantity} {req.sell.value}")
 
     if req.sell == CurrencyEnum.JPY:

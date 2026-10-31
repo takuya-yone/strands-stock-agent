@@ -18,7 +18,9 @@ class UserBalanceModel(Model):
     LatestTransactionId = UnicodeAttribute(null=True)
 
     def to_fx_balance(self) -> FxBalance:
-        return FxBalance(JPY=self.Balance.JPY, USD=self.Balance.USD, EUR=self.Balance.EUR, GBP=self.Balance.GBP)
+        return FxBalance(
+            JPY=int(self.Balance.JPY), USD=int(self.Balance.USD), EUR=int(self.Balance.EUR), GBP=int(self.Balance.GBP)
+        )
 
 
 class UserBalanceHistoryModel(Model):

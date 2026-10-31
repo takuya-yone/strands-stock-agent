@@ -58,10 +58,10 @@ class CurrencyEnum(Enum):
 
 
 class FxBalance(BaseModel):
-    JPY: float
-    EUR: float
-    USD: float
-    GBP: float
+    JPY: int
+    EUR: int
+    USD: int
+    GBP: int
 
 
 class OrderRequest(BaseModel):
