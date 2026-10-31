@@ -11,14 +11,14 @@ class UserBalanceModel(Model):
     """
 
     class Meta:
-        table_name = "fx-balance-table"
+        table_name = "FxBalanceTable"
 
-    userId = UnicodeAttribute(hash_key=True)
-    balance = MapAttribute(JPY=NumberAttribute(), USD=NumberAttribute(), EUR=NumberAttribute(), GBP=NumberAttribute())
-    latestTransactionId = UnicodeAttribute(null=True)
+    ActorId = UnicodeAttribute(hash_key=True)
+    Balance = MapAttribute(JPY=NumberAttribute(), USD=NumberAttribute(), EUR=NumberAttribute(), GBP=NumberAttribute())
+    LatestTransactionId = UnicodeAttribute(null=True)
 
     def to_fx_balance(self) -> FxBalance:
-        return FxBalance(JPY=self.balance.JPY, USD=self.balance.USD, EUR=self.balance.EUR, GBP=self.balance.GBP)
+        return FxBalance(JPY=self.Balance.JPY, USD=self.Balance.USD, EUR=self.Balance.EUR, GBP=self.Balance.GBP)
 
 
 class UserBalanceHistoryModel(Model):
@@ -27,27 +27,27 @@ class UserBalanceHistoryModel(Model):
     """
 
     class Meta:
-        table_name = "fx-balance-history-table"
+        table_name = "FxBalanceHistoryTable"
 
-    userId = UnicodeAttribute(hash_key=True)
-    timestamp = UnicodeAttribute(range_key=True)
-    transactionId = UnicodeAttribute()
-    balance = MapAttribute(JPY=NumberAttribute(), USD=NumberAttribute(), EUR=NumberAttribute(), GBP=NumberAttribute())
-    totalJpyValue = NumberAttribute()
+    ActorId = UnicodeAttribute(hash_key=True)
+    Timestamp = UnicodeAttribute(range_key=True)
+    TransactionId = UnicodeAttribute()
+    Balance = MapAttribute(JPY=NumberAttribute(), USD=NumberAttribute(), EUR=NumberAttribute(), GBP=NumberAttribute())
+    TotalJpyValue = NumberAttribute()
 
 
-class UserIdIndex(GlobalSecondaryIndex):
+class ActorIdIndex(GlobalSecondaryIndex):
     class Meta:
-        index_name = "user-id-index"
+        index_name = "actor-id-index"
         projection = AllProjection()
         # プロビジョニングモードの場合のみ必要
         # read_capacity_units = 1
         # write_capacity_units = 1
 
     # GSIのパーティションキー
-    userId = UnicodeAttribute(hash_key=True)
+    ActorId = UnicodeAttribute(hash_key=True)
     # GSIのソートキー(任意)
-    timestamp = UnicodeAttribute(range_key=True)
+    Timestamp = UnicodeAttribute(range_key=True)
 
 
 class OrderHistoryModel(Model):
@@ -56,15 +56,15 @@ class OrderHistoryModel(Model):
     """
 
     class Meta:
-        table_name = "fx-order-history-table"
+        table_name = "FxOrderHistoryTable"
 
-    transactionId = UnicodeAttribute(hash_key=True)
-    userId = UnicodeAttribute()
-    timestamp = UnicodeAttribute()
-    ticker = UnicodeAttribute()
-    quantity = NumberAttribute()
-    price = NumberAttribute()
-    order_summary = UnicodeAttribute(null=True)
+    TransactionId = UnicodeAttribute(hash_key=True)
+    ActorId = UnicodeAttribute()
+    Timestamp = UnicodeAttribute()
+    Ticker = UnicodeAttribute()
+    Quantity = NumberAttribute()
+    Price = NumberAttribute()
+    OrderSummary = UnicodeAttribute(null=True)
 
     # インデックスをクラス属性として登録
-    user_id_index = UserIdIndex()
+    actor_id_index = ActorIdIndex()

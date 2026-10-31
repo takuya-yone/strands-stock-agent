@@ -33,18 +33,18 @@ def get_exchange_info(ticker: ExchangeIndexEnum) -> dict:
 
 
 @tool
-def get_fx_balance(user_id: str) -> FxBalance:
+def get_fx_balance(actor_id: str) -> FxBalance:
     """
     Get the current foreign exchange balance.
 
     Args:
-        user_id (str): The user ID for which to fetch the FX balance.
+        actor_id (str): The user ID for which to fetch the FX balance.
 
     Returns:
         FxBalance: An object containing the FX balance information.
     """
     # This is a placeholder implementation. Replace with actual logic to fetch FX balance.
-    balance = UserBalanceModel.get(user_id)  # Replace "user_id" with the actual user ID
+    balance = UserBalanceModel.get(actor_id)  # Replace "actor_id" with the actual user ID
 
     return balance.to_fx_balance()
 
@@ -63,12 +63,14 @@ def generate_transaction_id() -> str:
 
 
 @tool
-def order(user_id: str, transaction_id: str, sell: CurrencyEnum, buy: CurrencyEnum, buy_quantity: int) -> OrderResponse:
+def order(
+    actor_id: str, transaction_id: str, sell: CurrencyEnum, buy: CurrencyEnum, buy_quantity: int
+) -> OrderResponse:
     """
     Place an order for the given request.
 
     Args:
-        user_id (str): The user ID placing the order.
+        actor_id (str): The user ID placing the order.
         transaction_id (str): The transaction ID for the order.
         sell (CurrencyEnum): The currency to sell.
         buy (CurrencyEnum): The currency to buy.
@@ -78,27 +80,27 @@ def order(user_id: str, transaction_id: str, sell: CurrencyEnum, buy: CurrencyEn
         OrderResponse: An object containing the order confirmation or status.
     """
     # This is a placeholder implementation. Replace with actual logic to place an order.
-    logger.info(f"Placing order for user: {user_id}", extra={"userId": user_id})
+    logger.info(f"Placing order for user: {actor_id}", extra={"actorId": actor_id})
     request = OrderRequest(
-        user_id=user_id, transaction_id=transaction_id, sell=sell, buy=buy, buy_quantity=buy_quantity
+        actor_id=actor_id, transaction_id=transaction_id, sell=sell, buy=buy, buy_quantity=buy_quantity
     )
 
     return exec_order(request)
 
 
 @tool
-def get_order_histories(user_id: str) -> list[OrderHistoryModel]:
+def get_order_histories(actor_id: str) -> list[OrderHistoryModel]:
     """
     Get the order histories for the given user ID.
 
     Args:
-        user_id (str): The user ID for which to fetch order histories.
+        actor_id (str): The user ID for which to fetch order histories.
 
     Returns:
         list[OrderHistoryModel]: A list of order history records. Limited to the 10 most recent entries.
     """
-    histories = list(OrderHistoryModel.user_id_index.query(user_id, scan_index_forward=False, limit=10))
+    histories = list(OrderHistoryModel.actor_id_index.query(actor_id, scan_index_forward=False, limit=10))
     logger.info(
-        f"Fetched order histories for user: {user_id}", extra={"userId": user_id, "historiesCount": len(histories)}
+        f"Fetched order histories for user: {actor_id}", extra={"actorId": actor_id, "historiesCount": len(histories)}
     )
     return histories

@@ -18,7 +18,7 @@ def put_exchange_report_to_s3(
     """
     logger.info("Uploading exchange report to S3 for transaction ID: %s", transaction_id)
     s3_client = boto3.client("s3")
-    bucket_name = "fx-order-report"
+    bucket_name = "fx-order-summary-bucket"
     s3_client.upload_file(file_path, bucket_name, f"{transaction_id}.md")
 
 
@@ -40,5 +40,5 @@ def put_exchange_report_to_dynamodb(
         logger.error("Order history not found for transaction ID: %s", transaction_id)
         return
     logger.info("Order summary: %s", order_summary)
-    order_history.order_summary = order_summary
+    order_history.OrderSummary = order_summary
     order_history.save()

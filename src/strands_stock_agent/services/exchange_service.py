@@ -22,10 +22,10 @@ def exec_order(req: OrderRequest) -> OrderResponse:
         OrderResponse: The response containing the transaction ID and timestamp.
     """
     logger.info(
-        f"Executing order for user: {req.user_id}, sell: {req.sell}, buy: {req.buy}, buy_quantity: {req.buy_quantity}"
+        f"Executing order for user: {req.actor_id}, sell: {req.sell}, buy: {req.buy}, buy_quantity: {req.buy_quantity}"
     )
 
-    new_balance = UserBalanceModel.get(req.user_id)
+    new_balance = UserBalanceModel.get(req.actor_id)
 
     # buy_quantity is in the buy currency; convert it to the sell currency via JPY
 
@@ -33,103 +33,103 @@ def exec_order(req: OrderRequest) -> OrderResponse:
     if req.sell != CurrencyEnum.JPY and req.buy != CurrencyEnum.JPY:
         raise ValueError("Either sell or buy currency must be JPY")
 
-    sell_quantity = convert_quantity(req.buy_quantity, req.buy, req.sell)
+    sell_quantity = _convert_quantity(req.buy_quantity, req.buy, req.sell)
     logger.info(f"Sell quantity: {sell_quantity} {req.sell.value}")
 
     if req.sell == CurrencyEnum.JPY:
-        new_balance.balance.JPY -= sell_quantity
+        new_balance.Balance.JPY -= sell_quantity
     elif req.sell == CurrencyEnum.USD:
-        new_balance.balance.USD -= sell_quantity
+        new_balance.Balance.USD -= sell_quantity
     elif req.sell == CurrencyEnum.EUR:
-        new_balance.balance.EUR -= sell_quantity
+        new_balance.Balance.EUR -= sell_quantity
     elif req.sell == CurrencyEnum.GBP:
-        new_balance.balance.GBP -= sell_quantity
+        new_balance.Balance.GBP -= sell_quantity
 
     # if minus balance, raise an error
     if (
-        new_balance.balance.JPY < 0
-        or new_balance.balance.USD < 0
-        or new_balance.balance.EUR < 0
-        or new_balance.balance.GBP < 0
+        new_balance.Balance.JPY < 0
+        or new_balance.Balance.USD < 0
+        or new_balance.Balance.EUR < 0
+        or new_balance.Balance.GBP < 0
     ):
         raise ValueError("Insufficient balance")
 
     if req.buy == CurrencyEnum.JPY:
-        new_balance.balance.JPY += req.buy_quantity
+        new_balance.Balance.JPY += req.buy_quantity
     elif req.buy == CurrencyEnum.USD:
-        new_balance.balance.USD += req.buy_quantity
+        new_balance.Balance.USD += req.buy_quantity
     elif req.buy == CurrencyEnum.EUR:
-        new_balance.balance.EUR += req.buy_quantity
+        new_balance.Balance.EUR += req.buy_quantity
     elif req.buy == CurrencyEnum.GBP:
-        new_balance.balance.GBP += req.buy_quantity
+        new_balance.Balance.GBP += req.buy_quantity
 
-    save_balance(req.user_id, new_balance, req.transaction_id)
-    save_user_balance_history(req.user_id, new_balance, req.transaction_id)
-    save_order_history(
-        req.user_id,
+    _save_balance(req.actor_id, new_balance, req.transaction_id)
+    _save_user_balance_history(req.actor_id, new_balance, req.transaction_id)
+    _save_order_history(
+        req.actor_id,
         req.transaction_id,
         f"{req.sell.value}/{req.buy.value}",
         req.buy_quantity,
-        get_jpy_rate(req.buy),
+        _get_jpy_rate(req.buy),
     )
 
     res = OrderResponse(transaction_id=req.transaction_id)
     return res
 
 
-def save_order_history(user_id: str, transaction_id: str, ticker: str, quantity: float, price: float):
+def _save_order_history(actor_id: str, transaction_id: str, ticker: str, quantity: float, price: float):
     """
     Save the order history to the database.
 
     Args:
-        user_id (str): The user ID associated with the order.
+        actor_id (str): The user ID associated with the order.
         transaction_id (str): The transaction ID for the order.
         ticker (str): The ticker symbol of the asset.
         quantity (float): The quantity of the asset.
         price (float): The price of the asset.
     """
-    logger.info(f"Saving order history for user_id={user_id}, transaction_id={transaction_id}")
+    logger.info(f"Saving order history for actor_id={actor_id}, transaction_id={transaction_id}")
     _timestamp = get_timestamp()
     history = OrderHistoryModel(
-        transactionId=transaction_id,
-        userId=user_id,
-        timestamp=_timestamp,
-        ticker=ticker,
-        quantity=quantity,
-        price=price,
+        TransactionId=transaction_id,
+        ActorId=actor_id,
+        Timestamp=_timestamp,
+        Ticker=ticker,
+        Quantity=quantity,
+        Price=price,
     )
     history.save()
-    logger.info(f"Order history created: {history.transactionId}")
+    logger.info(f"Order history created: {history.TransactionId}")
 
 
-def save_user_balance_history(user_id: str, new_balance: UserBalanceModel, transaction_id: str):
+def _save_user_balance_history(actor_id: str, new_balance: UserBalanceModel, transaction_id: str):
     """
     Save the user's balance history to the database.
 
     Args:
-        user_id (str): The user ID for which to save the balance history.
+        actor_id (str): The user ID for which to save the balance history.
         new_balance (UserBalanceModel): The current balance object.
         transaction_id (str): The transaction ID associated with this balance update.
         timestamp (str): The timestamp of the balance snapshot.
     """
-    logger.info(f"Saving user balance history for user_id={user_id}, transaction_id={transaction_id}")
+    logger.info(f"Saving user balance history for actor_id={actor_id}, transaction_id={transaction_id}")
     timestamp = get_timestamp()
     history = UserBalanceHistoryModel(
-        userId=user_id,
-        timestamp=timestamp,
-        transactionId=transaction_id,
-        balance={
-            "JPY": new_balance.balance.JPY,
-            "USD": new_balance.balance.USD,
-            "EUR": new_balance.balance.EUR,
-            "GBP": new_balance.balance.GBP,
+        ActorId=actor_id,
+        Timestamp=timestamp,
+        TransactionId=transaction_id,
+        Balance={
+            "JPY": int(new_balance.Balance.JPY),
+            "USD": int(new_balance.Balance.USD),
+            "EUR": int(new_balance.Balance.EUR),
+            "GBP": int(new_balance.Balance.GBP),
         },
-        totalJpyValue=calc_jpy_value(new_balance),
+        TotalJpyValue=int(_calc_jpy_value(new_balance)),
     )
     history.save()
 
 
-def get_jpy_rate(currency: CurrencyEnum) -> float:
+def _get_jpy_rate(currency: CurrencyEnum) -> float:
     """
     Get the JPY value of one unit of the given currency.
 
@@ -141,10 +141,10 @@ def get_jpy_rate(currency: CurrencyEnum) -> float:
     """
     if currency == CurrencyEnum.JPY:
         return 1.0
-    return get_last_price(ExchangeIndexEnum[f"{currency.value}JPY"])
+    return _get_last_price(ExchangeIndexEnum[f"{currency.value}JPY"])
 
 
-def convert_quantity(quantity: float, from_currency: CurrencyEnum, to_currency: CurrencyEnum) -> float:
+def _convert_quantity(quantity: float, from_currency: CurrencyEnum, to_currency: CurrencyEnum) -> float:
     """
     Convert an amount from one currency to another via JPY.
 
@@ -158,30 +158,29 @@ def convert_quantity(quantity: float, from_currency: CurrencyEnum, to_currency: 
     """
     if from_currency == to_currency:
         return quantity
-    return quantity * get_jpy_rate(from_currency) / get_jpy_rate(to_currency)
+    return quantity * _get_jpy_rate(from_currency) / _get_jpy_rate(to_currency)
 
 
-def save_balance(user_id: str, new_balance: UserBalanceModel, transaction_id: str):
+def _save_balance(actor_id: str, new_balance: UserBalanceModel, transaction_id: str):
     """
     Save the updated user balance to the database.
 
     Args:
-        user_id (str): The user ID for which to save the balance.
+        actor_id (str): The user ID for which to save the balance.
         new_balance (UserBalanceModel): The updated balance object.
         transaction_id (str): The transaction ID associated with this balance update.
     """
-    logger.info(f"Saving user balance for user_id={user_id}, transaction_id={transaction_id}")
-    balance = UserBalanceModel.get(user_id)
-    balance.balance.JPY = new_balance.balance.JPY
-    balance.balance.USD = new_balance.balance.USD
-    balance.balance.EUR = new_balance.balance.EUR
-    balance.balance.GBP = new_balance.balance.GBP
-    balance.latestTransactionId = transaction_id
-    balance.totalJpyValue = calc_jpy_value(new_balance)
+    logger.info(f"Saving user balance for actor_id={actor_id}, transaction_id={transaction_id}")
+    balance = UserBalanceModel.get(actor_id)
+    balance.Balance.JPY = int(new_balance.Balance.JPY)
+    balance.Balance.USD = int(new_balance.Balance.USD)
+    balance.Balance.EUR = int(new_balance.Balance.EUR)
+    balance.Balance.GBP = int(new_balance.Balance.GBP)
+    balance.LatestTransactionId = transaction_id
     balance.save()
 
 
-def calc_jpy_value(balance: UserBalanceModel):
+def _calc_jpy_value(balance: UserBalanceModel):
     """
     Calculate the total value of the user's balance in JPY.
 
@@ -191,16 +190,16 @@ def calc_jpy_value(balance: UserBalanceModel):
     Returns:
         int: The total value of the balance in JPY.
     """
-    jpy_value = balance.balance.JPY
+    jpy_value = balance.Balance.JPY
 
-    jpy_value += balance.balance.USD * get_last_price(ExchangeIndexEnum.USDJPY)
-    jpy_value += balance.balance.EUR * get_last_price(ExchangeIndexEnum.EURJPY)
-    jpy_value += balance.balance.GBP * get_last_price(ExchangeIndexEnum.GBPJPY)
+    jpy_value += balance.Balance.USD * _get_last_price(ExchangeIndexEnum.USDJPY)
+    jpy_value += balance.Balance.EUR * _get_last_price(ExchangeIndexEnum.EURJPY)
+    jpy_value += balance.Balance.GBP * _get_last_price(ExchangeIndexEnum.GBPJPY)
 
     return int(jpy_value)
 
 
-def get_last_price(ticker: ExchangeIndexEnum) -> float:
+def _get_last_price(ticker: ExchangeIndexEnum) -> float:
     """
     Get the last price for the given exchange ticker.
 

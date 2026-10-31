@@ -10,9 +10,9 @@
 set -euo pipefail
 
 # ===== 設定（環境に合わせて変更） =====
-TABLE1="fx-balance-history-table"
-TABLE2="fx-order-history-table"
-BUCKET="fx-order-report"
+TABLE1="FxBalanceHistoryTable"
+TABLE2="FxOrderHistoryTable"
+BUCKET="fx-order-summary-bucket"
 export AWS_REGION="${AWS_REGION:-ap-northeast-1}"
 export AWS_DEFAULT_REGION="$AWS_REGION"
 # export AWS_PROFILE="my-profile"
