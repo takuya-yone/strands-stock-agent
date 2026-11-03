@@ -16,7 +16,7 @@ exchange_report_agent_tools = [file_write, put_exchange_report_to_dynamodb]
 
 exchange_report_agent = Agent(
     name="strands-exchange-report-agent",
-    model=StrandsLlmModelEnum.NOVA_2_LITE_GLOBAL.value,
+    model=StrandsLlmModelEnum.KIMI_K3_GLOBAL.value,
     system_prompt=exchange_report_system_prompt,
     tools=exchange_report_agent_tools,
     callback_handler=None,
