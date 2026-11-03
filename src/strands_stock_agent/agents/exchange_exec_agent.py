@@ -37,6 +37,7 @@ In need latest information use web-search tool.
 Always verify the information obtained from the web-search tool.
 """
 
+
 exchange_exec_agent = Agent(
     name="strands-exchange-exec-agent",
     model=StrandsLlmModelEnum.KIMI_K3_GLOBAL.value,
